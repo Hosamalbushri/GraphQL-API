@@ -5,6 +5,7 @@ namespace Webkul\GraphQLAPI\Mutations\Shop\Customer;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
+use Webkul\AdminTheme\Repositories\Country\AreaRepository;
 use Webkul\CartRule\Repositories\CartRuleCouponRepository;
 use Webkul\Checkout\Facades\Cart;
 use Webkul\Core\Rules\PhoneNumber;
@@ -127,7 +128,7 @@ class CheckoutMutation extends Controller
                     throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
                 }
                 $this->customerAddressRepository->create(array_merge($args['billing'], [
-                    'address' => implode(PHP_EOL, $args['billing']['address']),
+                    'address'     => implode(PHP_EOL, $args['billing']['address']),
                     'city'        => $area->area_name,
                     'country'     => $area->country_code,
                     'state'       => $area->state_code,
@@ -190,16 +191,16 @@ class CheckoutMutation extends Controller
     private function mergeAddressRules(string $addressType): array
     {
         return [
-            "{$addressType}.company_name" => ['nullable'],
-            "{$addressType}.first_name"   => ['required'],
-            "{$addressType}.last_name"    => ['required'],
-            "{$addressType}.email"        => ['required', 'email'],
-            "{$addressType}.address"      => ['required', 'array', 'min:1'],
-            "{$addressType}.state_area_id"         => ['required','exists:state_areas,id'],
-            "{$addressType}.country"      => core()->isCountryRequired() ? ['required'] : ['nullable'],
-            "{$addressType}.state"        => core()->isStateRequired() ? ['required'] : ['nullable'],
-            "{$addressType}.postcode"     => core()->isPostCodeRequired() ? ['required', new PostCode] : [new PostCode],
-            "{$addressType}.phone"        => ['required', new PhoneNumber],
+            "{$addressType}.company_name"          => ['nullable'],
+            "{$addressType}.first_name"            => ['required'],
+            "{$addressType}.last_name"             => ['required'],
+            "{$addressType}.email"                 => ['required', 'email'],
+            "{$addressType}.address"               => ['required', 'array', 'min:1'],
+            "{$addressType}.state_area_id"         => ['required', 'exists:state_areas,id'],
+            "{$addressType}.country"               => core()->isCountryRequired() ? ['required'] : ['nullable'],
+            "{$addressType}.state"                 => core()->isStateRequired() ? ['required'] : ['nullable'],
+            "{$addressType}.postcode"              => core()->isPostCodeRequired() ? ['required', new PostCode] : [new PostCode],
+            "{$addressType}.phone"                 => ['required', new PhoneNumber],
         ];
     }
 
