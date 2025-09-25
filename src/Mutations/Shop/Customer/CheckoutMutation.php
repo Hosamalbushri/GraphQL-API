@@ -32,7 +32,8 @@ class CheckoutMutation extends Controller
         protected OrderRepository $orderRepository,
         protected NotificationRepository $notificationRepository,
         protected InvoiceRepository $invoiceRepository,
-        protected PaymentHelper $paymentHelper
+        protected PaymentHelper $paymentHelper,
+        protected AreaRepository $areaRepository
     ) {
         Auth::setDefaultDriver('api');
     }
@@ -121,8 +122,15 @@ class CheckoutMutation extends Controller
             }
 
             if (! empty($args['billing']['save_address'])) {
+                $area = $this->areaRepository->findOrFail($args['state_area_id']);
+                if (! $area) {
+                    throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
+                }
                 $this->customerAddressRepository->create(array_merge($args['billing'], [
                     'address' => implode(PHP_EOL, $args['billing']['address']),
+                    'city'        => $area->area_name,
+                    'country'     => $area->country_code,
+                    'state'       => $area->state_code,
                 ]));
             }
         }
@@ -187,7 +195,7 @@ class CheckoutMutation extends Controller
             "{$addressType}.last_name"    => ['required'],
             "{$addressType}.email"        => ['required', 'email'],
             "{$addressType}.address"      => ['required', 'array', 'min:1'],
-            "{$addressType}.city"         => ['required'],
+            "{$addressType}.state_area_id"         => ['required','exists:state_areas,id'],
             "{$addressType}.country"      => core()->isCountryRequired() ? ['required'] : ['nullable'],
             "{$addressType}.state"        => core()->isStateRequired() ? ['required'] : ['nullable'],
             "{$addressType}.postcode"     => core()->isPostCodeRequired() ? ['required', new PostCode] : [new PostCode],
