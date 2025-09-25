@@ -123,7 +123,7 @@ class CheckoutMutation extends Controller
             }
 
             if (! empty($args['billing']['save_address'])) {
-                $area = $this->areaRepository->findOrFail($args['state_area_id']);
+                $area = $this->areaRepository->findOrFail($args['billing']['state_area_id']);
                 if (! $area) {
                     throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
                 }
