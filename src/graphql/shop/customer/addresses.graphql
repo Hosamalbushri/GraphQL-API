@@ -39,8 +39,8 @@ input AddressInput {
     address: [String]!
     country: String!
     state: String!
-    city: String!
-    postcode: String!
+    areaId: Int! @rename(attribute: "state_area_id")
+    postcode: String
     phone: String!
     defaultAddress: Boolean @rename(attribute: "default_address")
 }

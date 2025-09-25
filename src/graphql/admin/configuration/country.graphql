@@ -1,15 +1,22 @@
 # Setting\Country Related APIs
 extend type Query {
-    countries: [Country!] @all(model: "Webkul\\Core\\Models\\Country")
+    countries: [Country!] @all(model: "Webkul\\AdminTheme\\Models\\Country")
 
-    country(id: ID! @eq): Country @find(model: "Webkul\\Core\\Models\\Country")
+    country(id: ID! @eq): Country @find(model: "Webkul\\AdminTheme\\Models\\Country")
 
     countrieStates(
         input: FilterCountryStateInput
         @builder(method: "Webkul\\GraphQLAPI\\Queries\\Admin\\CommonFilter")
-    ): [CountryState!] @all(model: "Webkul\\Core\\Models\\CountryState")
+    ): [CountryState!] @all(model: "Webkul\\AdminTheme\\Models\\CountryState")
 
-    countrieState(id: ID! @eq): CountryState @find(model: "Webkul\\Core\\Models\\CountryState")
+    countrieState(id: ID! @eq): CountryState @find(model: "Webkul\\AdminTheme\\Models\\CountryState")
+
+    stateAreas(
+        input: FilterStateAreaInput
+        @builder(method: "Webkul\\GraphQLAPI\\Queries\\Admin\\CommonFilter")
+    ): [StateArea!] @all(model: "Webkul\\AdminTheme\\Models\\Areas")
+
+    stateArea(id: ID! @eq): StateArea @find(model: "Webkul\\AdminTheme\\Models\\Areas")
 }
 
 input FilterCountryStateInput {
@@ -20,12 +27,20 @@ input FilterCountryStateInput {
     countryCode: String @rename(attribute: "country_code")
 }
 
+input FilterStateAreaInput {
+    id: Int
+    areaName: String @rename(attribute: "area_name")
+    stateCode: String @rename(attribute: "state_code")
+    countryCode: String @rename(attribute: "country_code")
+    countryStateId: ID @rename(attribute: "country_state_id")
+}
+
 type Country {
     id: ID!
     code: String!
     name: String!
     translations: [CountryTranslation!] @hasMany
-    states: [CountryState] @hasMany
+    states: [CountryState!] @hasMany
 }
 
 type CountryTranslation {
@@ -42,11 +57,19 @@ type CountryState {
     defaultName: String @rename(attribute: "default_name")
     countryId: ID! @rename(attribute: "country_id")
     translations: [CountryStateTranslation!] @hasMany
+    areas: [StateArea!] @hasMany(key: "country_state_id", foreignKey: "id")
 }
 
 type CountryStateTranslation {
     id: ID!
     locale: String!
     defaultName: String @rename(attribute: "default_name")
+    countryStateId: ID! @rename(attribute: "country_state_id")
+}
+type StateArea {
+    id: ID!
+    areaName: String @rename(attribute: "area_name")
+    stateCode: String @rename(attribute: "state_code")
+    countryCode: String @rename(attribute: "country_code")
     countryStateId: ID! @rename(attribute: "country_state_id")
 }

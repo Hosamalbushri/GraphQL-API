@@ -71,6 +71,7 @@ type Address {
     stateName: String @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Shop\\Customer\\CustomerQuery@getStateName")
     country: String!
     countryName: String @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Shop\\Customer\\CustomerQuery@getCountryName")
+    areaId: String @rename(attribute: "state_area_id")
     postcode: String!
     email: String
     phone: String

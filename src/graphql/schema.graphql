@@ -44,3 +44,4 @@ scalar JSON @scalar(class: "Webkul\\GraphQLAPI\\Scalars\\JSON")
 
 #import common.graphql
 #import /shop/customer/*.graphql
+#import ../../../DeliveryAgents/src/GraphQL/graphql/*.graphql
