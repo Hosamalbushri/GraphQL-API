@@ -58,6 +58,8 @@ class AddressesMutation extends Controller
                 'customer_id' => $customer->id,
                 'address'     => implode(PHP_EOL, array_filter($args['address'])),
                 'city'        => $area->area_name,
+                'country'     => $area->country_code,
+                'state'       => $area->state_code,
             ]);
 
             $customerAddress = $this->customerAddressRepository->create($args);
@@ -112,6 +114,8 @@ class AddressesMutation extends Controller
             $args = array_merge($args, [
                 'address' => implode(PHP_EOL, array_filter($args['address'])),
                 'city'        => $area->area_name,
+                'country'     => $area->country_code,
+                'state'       => $area->state_code,
             ]);
 
             $customerAddress = $this->customerAddressRepository->update($args, $args['id']);
