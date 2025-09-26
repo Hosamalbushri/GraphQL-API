@@ -84,6 +84,11 @@ class CheckoutMutation extends Controller
 
         $rules = array_merge($rules, $this->mergeAddressRules('billing'));
 
+        $area = $this->areaRepository->findOrFail($args['billing']['state_area_id']);
+        if (! $area) {
+            throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
+        }
+
         if (
             empty($args['billing']['use_for_shipping'])
             && Cart::getCart()->haveStockableItems()
@@ -123,10 +128,6 @@ class CheckoutMutation extends Controller
             }
 
             if (! empty($args['billing']['save_address'])) {
-                $area = $this->areaRepository->findOrFail($args['billing']['state_area_id']);
-                if (! $area) {
-                    throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
-                }
                 $this->customerAddressRepository->create(array_merge($args['billing'], [
                     'address'     => implode(PHP_EOL, $args['billing']['address']),
                     'city'        => $area->area_name,
@@ -135,6 +136,11 @@ class CheckoutMutation extends Controller
                 ]));
             }
         }
+        $args = array_merge($args['billing'], [
+            'city'        => $area->area_name,
+            'country'     => $area->country_code,
+            'state'       => $area->state_code,
+        ]);
 
         Cart::saveAddresses($args);
 
