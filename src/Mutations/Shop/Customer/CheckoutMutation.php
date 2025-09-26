@@ -84,11 +84,6 @@ class CheckoutMutation extends Controller
 
         $rules = array_merge($rules, $this->mergeAddressRules('billing'));
 
-        $area = $this->areaRepository->findOrFail($args['billing']['state_area_id']);
-        if (! $area) {
-            throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
-        }
-
         if (
             empty($args['billing']['use_for_shipping'])
             && Cart::getCart()->haveStockableItems()
@@ -107,6 +102,25 @@ class CheckoutMutation extends Controller
 
         if (Cart::hasError()) {
             throw new CustomException(current(Cart::getErrors()));
+        }
+
+        // Get billing area information for both authenticated and guest users
+        $billingArea = $this->areaRepository->findOrFail($args['billing']['state_area_id']);
+        if (! $billingArea) {
+            throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
+        }
+
+        // Get shipping area information if shipping address exists
+        $shippingArea = null;
+        if (
+            empty($args['billing']['use_for_shipping'])
+            && Cart::getCart()->haveStockableItems()
+            && isset($args['shipping']['state_area_id'])
+        ) {
+            $shippingArea = $this->areaRepository->findOrFail($args['shipping']['state_area_id']);
+            if (! $shippingArea) {
+                throw new CustomException(trans('bagisto_graphql::app.shop.customers.account.addresses.area-not-found'));
+            }
         }
 
         if (auth()->guard('api')->check()) {
@@ -130,17 +144,30 @@ class CheckoutMutation extends Controller
             if (! empty($args['billing']['save_address'])) {
                 $this->customerAddressRepository->create(array_merge($args['billing'], [
                     'address'     => implode(PHP_EOL, $args['billing']['address']),
-                    'city'        => $area->area_name,
-                    'country'     => $area->country_code,
-                    'state'       => $area->state_code,
+                    'city'        => $billingArea->area_name,
+                    'country'     => $billingArea->country_code,
+                    'state'       => $billingArea->state_code,
                 ]));
             }
         }
+        
+        // Merge billing area information for both authenticated and guest users
         $args = array_merge($args['billing'], [
-            'city'        => $area->area_name,
-            'country'     => $area->country_code,
-            'state'       => $area->state_code,
+            'city'        => $billingArea->area_name,
+            'country'     => $billingArea->country_code,
+            'state'       => $billingArea->state_code,
         ]);
+
+        // Merge shipping area information if shipping address exists
+        if ($shippingArea) {
+            $args = array_merge($args, [
+                'shipping' => array_merge($args['shipping'], [
+                    'city'        => $shippingArea->area_name,
+                    'country'     => $shippingArea->country_code,
+                    'state'       => $shippingArea->state_code,
+                ]),
+            ]);
+        }
 
         Cart::saveAddresses($args);
 
