@@ -152,7 +152,7 @@ class CheckoutMutation extends Controller
         }
         
         // Merge billing area information for both authenticated and guest users
-        $args = array_merge($args['billing'], [
+        $args['billing'] = array_merge($args['billing'], [
             'city'        => $billingArea->area_name,
             'country'     => $billingArea->country_code,
             'state'       => $billingArea->state_code,
@@ -160,12 +160,10 @@ class CheckoutMutation extends Controller
 
         // Merge shipping area information if shipping address exists
         if ($shippingArea) {
-            $args = array_merge($args, [
-                'shipping' => array_merge($args['shipping'], [
-                    'city'        => $shippingArea->area_name,
-                    'country'     => $shippingArea->country_code,
-                    'state'       => $shippingArea->state_code,
-                ]),
+            $args['shipping'] = array_merge($args['shipping'], [
+                'city'        => $shippingArea->area_name,
+                'country'     => $shippingArea->country_code,
+                'state'       => $shippingArea->state_code,
             ]);
         }
 
