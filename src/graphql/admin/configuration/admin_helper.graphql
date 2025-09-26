@@ -1,0 +1,23 @@
+# Admin Configuration Helper Related APIs
+extend type Query {
+    isPostCodeRequired: Boolean! @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Admin\\Configuration\\AdminHelperQuery@isPostCodeRequired")
+
+    showPostalCode: Boolean! @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Admin\\Configuration\\AdminHelperQuery@showPostalCode")
+
+    showCompanyName: Boolean! @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Admin\\Configuration\\AdminHelperQuery@showCompanyName")
+
+    showTaxNumber: Boolean! @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Admin\\Configuration\\AdminHelperQuery@showTaxNumber")
+
+    getDefaultCountry: String @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Admin\\Configuration\\AdminHelperQuery@getDefaultCountry")
+
+
+    getAddressConfiguration: AddressConfiguration! @field(resolver: "Webkul\\GraphQLAPI\\Queries\\Admin\\Configuration\\AdminHelperQuery@getAddressConfiguration")
+}
+
+type AddressConfiguration {
+    isPostCodeRequired: Boolean!
+    showPostalCode: Boolean!
+    showCompanyName: Boolean!
+    showTaxNumber: Boolean!
+    defaultCountry: String
+}
