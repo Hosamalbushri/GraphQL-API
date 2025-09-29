@@ -255,16 +255,33 @@ class NotificationRepository extends Repository
             $result = curl_exec($ch);
 
             curl_close($ch);
+            $response = json_decode($result);
 
-            Log::info('sendNotification: ', [
-                'response' => json_decode($result),
+            if (isset($response->name)) {
+                Log::info('✅ Notification sent successfully', [
+                    'message_id' => $response->name,
+                    'project_id' => $projectId,
+                    'title' => $data['title'] ?? 'N/A',
+                    'timestamp' => now()->toDateTimeString()
+                ]);
+            } else {
+                Log::warning('⚠️ Notification response unexpected', [
+                    'response' => $response,
+                    'project_id' => $projectId,
+                    'title' => $data['title'] ?? 'N/A'
+                ]);
+            }
+            return $response;
+        } catch (\Exception $e) {
+            Log::error('❌ Notification sending failed', [
+                'error' => $e->getMessage(),
+                'project_id' => $projectId,
+                'title' => $data['title'] ?? 'N/A',
+                'timestamp' => now()->toDateTimeString()
             ]);
 
-            return json_decode($result);
-        } catch (\Exception $e) {
-            session()->flash('error', $e);
+            session()->flash('error', 'Failed to send notification: ' . $e->getMessage());
 
-            Log::error('sendNotification Error: ', $e->getMessage());
         }
     }
 
