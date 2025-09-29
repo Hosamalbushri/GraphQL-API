@@ -672,6 +672,10 @@ return [
                 'configuration-error' => 'تحذير: تكوين FCM غير موجود.',
                 'product-not-found'   => 'تحذير: المنتج غير موجود.',
                 'category-not-found'  => 'تحذير: الفئة غير موجودة.',
+                'send-error'          => 'فشل في إرسال الإشعار.',
+                'unknown-error'       => 'حدث خطأ غير معروف أثناء إرسال الإشعار.',
+                'sending-failed'      => 'فشل في إرسال الإشعار.',
+                'exception-error'     => 'حدث خطأ أثناء إرسال الإشعار: :message',
             ],
         ],
 

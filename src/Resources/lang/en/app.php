@@ -678,6 +678,10 @@ return [
                 'configuration-error' => 'Warning: FCM configuration not found.',
                 'product-not-found'   => 'Warning: Product not found.',
                 'category-not-found'  => 'Warning: Category not found.',
+                'send-error'          => 'Failed to send notification.',
+                'unknown-error'       => 'Unknown error occurred while sending notification.',
+                'sending-failed'      => 'Notification sending failed.',
+                'exception-error'     => 'An error occurred while sending notification: :message',
             ],
         ],
 
