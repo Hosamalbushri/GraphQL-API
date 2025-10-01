@@ -172,18 +172,15 @@ class NotificationController extends Controller
      * @return \Illuminate\Http\RedirectResponse
      */
 
-// النسخة المحسنة من دالة sendNotification
+    // النسخة المحسنة من دالة sendNotification
 
     public function sendNotification($id)
     {
         try {
-            // 1. البحث عن الإشعار
             $notification = $this->notificationRepository->findOrFail($id);
 
-            // 2. إرسال الإشعار
             $result = $this->notificationRepository->prepareNotification($notification);
 
-            // 3. التحقق من النجاح بطريقة أفضل
             if ($this->isNotificationSent($result)) {
                 $this->handleSuccess($result);
             } else {
@@ -198,27 +195,21 @@ class NotificationController extends Controller
         return back();
     }
 
-    /**
-     * التحقق من نجاح إرسال الإشعار
-     */
+
     private function isNotificationSent($result): bool
     {
-        // التحقق من وجود message_id
         if (is_object($result) && isset($result->message_id)) {
             return true;
         }
 
-        // التحقق من وجود name (Firebase response)
         if (is_object($result) && isset($result->name)) {
             return true;
         }
 
-        // التحقق من array مع message_id
         if (is_array($result) && isset($result['message_id'])) {
             return true;
         }
 
-        // التحقق من array مع name
         if (is_array($result) && isset($result['name'])) {
             return true;
         }
@@ -226,61 +217,50 @@ class NotificationController extends Controller
         return false;
     }
 
-    /**
-     * معالجة النجاح
-     */
+
     private function handleSuccess($result): void
     {
         $messageId = $this->extractMessageId($result);
 
         session()->flash('success',
-            trans('bagisto_graphql::app.admin.settings.notification.send-success') .
-            ' (ID: ' . $messageId . ')'
+            trans('bagisto_graphql::app.admin.settings.notification.send-success')
         );
 
-        // تسجيل النجاح في السجلات
         \Log::info('Notification sent successfully', [
             'message_id' => $messageId,
-            'result' => $result
+            'result'     => $result,
         ]);
     }
 
-    /**
-     * معالجة الأخطاء
-     */
+
     private function handleError($result): void
     {
         $errorMessage = $this->extractErrorMessage($result);
 
         session()->flash('error', $errorMessage);
 
-        // تسجيل الخطأ في السجلات
         \Log::error('Notification sending failed', [
             'result' => $result,
-            'error' => $errorMessage
+            'error'  => $errorMessage,
         ]);
     }
 
-    /**
-     * معالجة الاستثناءات
-     */
+
     private function handleException(\Exception $e): void
     {
         $errorMessage = trans('bagisto_graphql::app.admin.settings.notification.exception-error', [
-            'message' => $e->getMessage()
+            'message' => $e->getMessage(),
         ]);
 
         session()->flash('error', $errorMessage);
 
         \Log::error('Notification sending exception', [
             'exception' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'trace'     => $e->getTraceAsString(),
         ]);
     }
 
-    /**
-     * استخراج معرف الرسالة
-     */
+
     private function extractMessageId($result): string
     {
         if (is_object($result)) {
@@ -294,17 +274,13 @@ class NotificationController extends Controller
         return 'unknown';
     }
 
-    /**
-     * استخراج رسالة الخطأ
-     */
+
     private function extractErrorMessage($result): string
     {
-        // إذا كان $result نص
         if (is_string($result)) {
             return $result;
         }
 
-        // إذا كان $result كائن
         if (is_object($result)) {
             if (isset($result->error)) {
                 return is_string($result->error) ? $result->error : json_encode($result->error);
@@ -317,7 +293,6 @@ class NotificationController extends Controller
             return trans('bagisto_graphql::app.admin.settings.notification.unknown-error');
         }
 
-        // إذا كان $result مصفوفة
         if (is_array($result)) {
             if (isset($result['error'])) {
                 return is_string($result['error']) ? $result['error'] : json_encode($result['error']);
@@ -333,11 +308,10 @@ class NotificationController extends Controller
         return trans('bagisto_graphql::app.admin.settings.notification.send-error');
     }
 
-
     /**
      * To check resource exist in DB.
      *
-     * @return \Illuminate\Http\Response
+     * @return JsonResponse
      */
     public function exist()
     {
