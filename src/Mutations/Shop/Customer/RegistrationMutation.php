@@ -191,6 +191,11 @@ class RegistrationMutation extends Controller
         }
 
         $loginCustomer = auth()->user();
+        if (isset($data['device_token'])) {
+
+            $loginCustomer->device_token = $data['device_token'];
+            $loginCustomer->save();
+        }
 
         if (! empty($password)) {
             $this->customerRepository->update([
