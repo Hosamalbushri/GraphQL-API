@@ -19,6 +19,8 @@ input SignUpInput {
     agreement: Boolean
     deviceToken: String @rename(attribute: "device_token")
     deviceName: String @rename(attribute: "device_name")
+    phone: String!
+    state_id :ID! @rename(attribute:"country_state_id")
 }
 
 input SocialSignInInput {

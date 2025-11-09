@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 use Nuwave\Lighthouse\Support\Contracts\GraphQLContext;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use Webkul\Core\Repositories\SubscribersListRepository;
+use Webkul\Core\Rules\PhoneNumber;
 use Webkul\Customer\Repositories\CustomerGroupRepository;
 use Webkul\Customer\Repositories\CustomerRepository;
 use Webkul\GraphQLAPI\Validators\CustomException;
@@ -37,11 +38,14 @@ class RegistrationMutation extends Controller
     public function signUp(mixed $rootValue, array $args, GraphQLContext $context)
     {
         $rules = [
-            'email'      => 'email|required|unique:customers,email',
-            'first_name' => 'string|required',
-            'last_name'  => 'string|required',
-            'password'   => 'min:6|required|confirmed',
-            'remember'   => 'boolean',
+            'email'           => 'email|required|unique:customers,email',
+            'first_name'      => 'string|required',
+            'last_name'       => 'string|required',
+            'password'        => 'min:6|required|confirmed',
+            'remember'        => 'boolean',
+            'phone'           => ['required', 'unique:customers,phone', new PhoneNumber],
+            'country_state_id'=> 'integer|required|exists:country_states,id',
+
         ];
 
         if (
@@ -133,9 +137,13 @@ class RegistrationMutation extends Controller
      */
     public function create($data)
     {
+        $group = $this->customerGroupRepository->findOneByField('country_state_id', $data['country_state_id']);
+        if (! $group) {
+            $group = $this->customerGroupRepository->findOneByField('code', 'general');
+        }
         $data = array_merge($data, [
             'api_token'                 => Str::random(80),
-            'customer_group_id'         => $this->customerGroupRepository->findOneByField('code', 'general')->id,
+            'customer_group_id'         => $group->id,
             'is_verified'               => ! core()->getConfigData('customer.settings.email.verification'),
             'password'                  => bcrypt($data['password']),
             'subscribed_to_news_letter' => $data['subscribed_to_news_letter'] ?? 0,

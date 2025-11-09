@@ -150,7 +150,7 @@ class CheckoutMutation extends Controller
                 ]));
             }
         }
-        
+
         // Merge billing area information for both authenticated and guest users
         $args['billing'] = array_merge($args['billing'], [
             'city'        => $billingArea->area_name,
@@ -576,9 +576,15 @@ class CheckoutMutation extends Controller
     public function prepareNotificationContent($order)
     {
         $data = [
-            'title'       => 'New Order Placed',
-            'body'        => 'Order ('.$order->id.') placed by '.$order->customerFullName.' successfully.',
-            'message'     => 'Order ('.$order->id.') placed by '.$order->customerFullName.' successfully.',
+            'title'       => trans('bagisto_graphql::app.shop.checkout.create-order-message.title'),
+            'body'        => trans('bagisto_graphql::app.shop.checkout.create-order-message.message', [
+                'id'       => $order->id,
+                'customer' => $order->customerFullName,
+            ]),
+            'message'     => trans('bagisto_graphql::app.shop.checkout.create-order-message.message', [
+                'id'       => $order->id,
+                'customer' => $order->customerFullName,
+            ]),
             'sound'       => 'default',
             'orderStatus' => $order->parcel_status,
             'orderId'     => (string) $order->id,
